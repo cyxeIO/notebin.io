@@ -1,27 +1,46 @@
+// tsconfig.json
 {
   "compilerOptions": {
     "target": "ES2017",
     "lib": ["dom", "dom.iterable", "esnext"],
+    
+    // allow importing .js/.jsx alongside TypeScript
     "allowJs": true,
+    // turn on basic JS checking if you’d like editor hints
+    // set to false to skip type-checking JS entirely
+    "checkJs": false,
+    
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
     "esModuleInterop": true,
+    
     "module": "esnext",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    
+    // for absolute imports via ~/ 
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["./src/*"]
+    },
+    
     "plugins": [
       {
         "name": "next"
       }
-    ],
-    "paths": {
-      "~/*": ["./src/*"]
-    }
+    ]
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.js",
+    "**/*.jsx",
+    ".next/types/**/*.ts"
+  ],
   "exclude": ["node_modules"]
 }

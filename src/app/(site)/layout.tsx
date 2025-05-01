@@ -1,49 +1,41 @@
-import { Login } from "~/features/login/components/Login";
-import { shortenNpub } from "~/lib/nostr/shortNpub";
-import type { UserWithKeys } from "~/types";
-import { getServerSession } from "next-auth";
-import { authOptions } from "~/auth";
-import Link from "next/link";
-import { UserDropdown } from "~/features/login";
-import { CreateNavButton } from "~/features/navigation/components/CreateNavButton";
-import { ArchiveNavButton } from "~/features/navigation/components/ArchiveNavButton";
+// src/app/layout.tsx
+import React from "react";
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
+import "~/styles/globals.css";
+import { ThemeProvider } from "~/providers/theme-provider";
+import AuthProvider from "~/providers/auth-provider";
+import QueryClientProviderWrapper from "~/providers/query-client-provider";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { Toaster } from "sonner";
+import LayoutShell from "~/components/ui/LayoutShell";
 
-export default async function SiteLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const session = await getServerSession(authOptions);
+const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
+const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
-  const user = session?.user as UserWithKeys;
+export const metadata: Metadata = {
+  title: "BlockNostr | Code Sharing",
+  description: "A modern, fast, and secure platform for developers to share code snippets.",
+  viewport: { width: "device-width", initialScale: 1, maximumScale: 1 },
+};
 
-  const shortNpub = shortenNpub(user?.publicKey);
-
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <main className="my-8 flex h-full w-full flex-col items-center justify-center gap-4 bg-background px-4">
-      <div className="flex w-full max-w-4xl flex-col">
-        <div className="mb-8 flex w-full items-start justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <Link href="/" className="no-underline">
-              <h1 className="font-bold font-mono text-3xl">
-                Notebin<span className="text-red-500">.</span>io
-              </h1>
-            </Link>
-
-            {/* <Button variant="ghost">Archive</Button> */}
-          </div>
-          <div className="flex items-center gap-2">
-            <ArchiveNavButton />
-            <CreateNavButton />
-            {user?.publicKey ? (
-              <UserDropdown publicKey={user?.publicKey} />
-            ) : (
-              <Login>{shortNpub ?? "Login"}</Login>
-            )}
-          </div>
-        </div>
-        {children}
-      </div>
-    </main>
+    <html lang="en" suppressHydrationWarning>
+      <body
+        className={`flex flex-col min-h-screen bg-background text-foreground ${geistSans.variable} ${geistMono.variable}`}
+      >
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <QueryClientProviderWrapper>
+            <AuthProvider>
+              <header className="h-0" />
+              <LayoutShell>{children}</LayoutShell>
+              <Toaster />
+            </AuthProvider>
+            <ReactQueryDevtools initialIsOpen={false} />
+          </QueryClientProviderWrapper>
+        </ThemeProvider>
+      </body>
+    </html>
   );
 }

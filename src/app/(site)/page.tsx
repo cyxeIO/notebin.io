@@ -1,35 +1,52 @@
-import { FilenameInput, LanguageSelect } from "~/features/editor";
-import { DescriptionInput } from "~/features/editor";
-import { getServerSession } from "next-auth";
-import { authOptions } from "~/auth";
-import type { UserWithKeys } from "~/types";
-import { PostButton } from "~/features/post";
-import { ActiveEditor } from "~/features/editor";
-import { TagsInput } from "~/features/editor";
-import { InputTagList } from "~/features/editor";
+// src/app/page.tsx
+"use client";
 
-export default async function HomePage() {
-  const session = await getServerSession(authOptions);
+import React, { useState } from "react";
+import { toast } from "sonner";
 
-  const user = session?.user as UserWithKeys;
+export default function HomePage() {
+  const [desc, setDesc] = useState("");
+  const [code, setCode] = useState("");
+  const [tags, setTags] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    toast.success("Snippet posted!");
+    setDesc("");
+    setCode("");
+    setTags("");
+  };
 
   return (
-    <>
-      <DescriptionInput />
-      <div className="overflow-hidden rounded-md border border-border">
-        <div className="flex w-full items-center justify-between gap-4 border-b bg-muted/50 px-2 py-3 align-start dark:bg-muted/30">
-          <FilenameInput />
-          <LanguageSelect />
-        </div>
-        <ActiveEditor />
-        <TagsInput />
+    <form onSubmit={handleSubmit} className="space-y-4 max-w-3xl mx-auto p-6">
+      <textarea
+        rows={2}
+        placeholder="Description"
+        value={desc}
+        onChange={(e) => setDesc(e.target.value)}
+        className="w-full bg-muted border border-border rounded-md p-3 placeholder:text-muted-fg focus:ring-accent focus:outline-none"
+      />
+      <div className="bg-muted border border-border rounded-lg p-3 font-mono">
+        <textarea
+          rows={8}
+          placeholder="Your code here…"
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
+          className="w-full bg-transparent focus:outline-none"
+        />
       </div>
-      <InputTagList />
-      <div className="flex w-full items-center justify-end">
-        {user?.publicKey && (
-          <PostButton publicKey={user.publicKey} secretKey={user.secretKey} />
-        )}
-      </div>
-    </>
+      <input
+        placeholder="Tags (comma separated)"
+        value={tags}
+        onChange={(e) => setTags(e.target.value)}
+        className="w-full bg-muted border border-border rounded-md p-2 placeholder:text-muted-fg focus:ring-accent focus:outline-none"
+      />
+      <button
+        type="submit"
+        className="px-4 py-2 bg-accent text-foreground rounded-md hover:opacity-90 transition"
+      >
+        Post Snippet
+      </button>
+    </form>
   );
 }
